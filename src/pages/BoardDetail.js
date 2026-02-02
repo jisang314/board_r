@@ -1,9 +1,9 @@
 import "../styles/BoardDetail.css"
 import {Link, useNavigate, useParams} from "react-router-dom";
 import {useEffect, useState} from "react";
-import axios from "axios";
+import axiosRequest from "../api/Axios";
 
-function PostDetail() {
+function BoardDetail() {
     const {id} = useParams();
     const navigate = useNavigate();
 
@@ -13,35 +13,31 @@ function PostDetail() {
     });
 
     useEffect(() => {
-        const getBoard = () => {
-            axios.get(`${process.env.REACT_APP_API_URL}/board/${id}`)
-                .then(response => {
-                    console.log('게시글 조회 성공: ', response.data);
-                    setBoard(response.data);
-                })
-                .catch(error => {
-                    console.error('게시글 조회 실패: ', error);
-                });
-        };
         getBoard();
-    }, []);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [id]);
+
+    const getBoard = () => {
+        axiosRequest("get", `${id}`, {}, fn_callback);
+    };
+
+    const fn_callback = (response) => {
+        setBoard(response.data);
+    }
 
     const handleDelete = () => {
         if (!window.confirm("정말 이 게시글을 삭제하시겠습니까?")) {
             return;
         }
 
-        axios.delete(`${process.env.REACT_APP_API_URL}/board/${id}`)
-            .then(response => {
-                console.log('게시글 삭제 성공: ', response.data);
-                alert('게시글이 삭제되었습니다.');
-                navigate('/board');
-            })
-            .catch(error => {
-                console.error('게시글 삭제 실패: ', error);
-                alert('게시글 삭제에 실패했습니다.');
-            });
+        axiosRequest("delete", `${id}`, {}, fn_callback2);
     };
+
+    const fn_callback2 = (response) => {
+        if (response.status === 200) {
+            navigate('/board');
+        }
+    }
 
     return (
         <div className="board-detail-container">
@@ -60,4 +56,4 @@ function PostDetail() {
     );
 }
 
-export default PostDetail;
+export default BoardDetail;

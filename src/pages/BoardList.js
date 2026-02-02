@@ -1,7 +1,7 @@
 import "../styles/BoardList.css"
 import {Link} from "react-router-dom";
 import React, {useEffect, useState} from "react";
-import axios from "axios";
+import axiosRequest from "../api/Axios";
 
 function BoardList() {
     const [boardList, setBoardList] = useState([]);
@@ -10,24 +10,23 @@ function BoardList() {
     const boardListPerPage = 10;
 
     useEffect(() => {
-        const getBoardList = () => {
-            axios.get(`${process.env.REACT_APP_API_URL}/board`, {
-                params: {
-                    page: currentPage - 1,
-                    size: boardListPerPage
-                }
-            })
-                .then(response => {
-                    console.log('게시글 목록 조회 성공: ', response.data);
-                    setBoardList(response.data.boardList);
-                    setTotalPages(Math.ceil(response.data.totalCount / 10));
-                })
-                .catch(error => {
-                    console.error('게시글 목록 조회 실패: ', error);
-                });
-        };
         getBoardList();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentPage]);
+
+    const getBoardList = () => {
+        axiosRequest("get", "s", {
+            params: {
+                page: currentPage - 1,
+                size: boardListPerPage
+            }
+        }, fn_callback);
+    };
+
+    const fn_callback = (response) => {
+        setBoardList(response.data.boardList);
+        setTotalPages(Math.ceil(response.data.totalCount / 10));
+    }
 
     // 전체 페이지 번호 배열 생성
     const pageNumbers = Array.from({length: totalPages}, (_, index) => index + 1);

@@ -1,9 +1,9 @@
 import "../styles/BoardEdit.css"
 import {Link, useNavigate, useParams} from "react-router-dom";
 import {useEffect, useState} from "react";
-import axios from "axios";
+import axiosRequest from "../api/Axios";
 
-function PostEdit() {
+function BoardEdit() {
     const {id} = useParams();
     const navigate = useNavigate();
 
@@ -14,16 +14,12 @@ function PostEdit() {
 
     // 게시글 불러오기
     useEffect(() => {
-        axios.get(`${process.env.REACT_APP_API_URL}/board/${id}`)
-            .then(response => {
-                console.log('게시글 가져오기 성공:', response.data);
-                setBoard(response.data);
-            })
-            .catch(error => {
-                console.error('게시글 가져오기 실패:', error);
-                alert("게시글을 불러오는 데 실패했습니다.");
-            });
+        axiosRequest("get", `${id}`, {}, fn_callback);
     }, [id]);
+
+    const fn_callback = (response) => {
+        setBoard(response.data);
+    }
 
     const handleChange = (e) => {
         const {name, value} = e.target;
@@ -34,18 +30,14 @@ function PostEdit() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-
-        axios.put(`${process.env.REACT_APP_API_URL}/board/${id}`, board)
-            .then(response => {
-                console.log('게시글 수정 성공: ', response.data);
-                alert('게시글이 수정되었습니다.');
-                navigate(`/board/detail/${id}`);
-            })
-            .catch(error => {
-                console.error('게시글 수정 실패: ', error);
-                alert('게시글 수정에 실패했습니다.');
-            });
+        axiosRequest("put", `${id}`, {data: board}, fn_callback2);
     };
+
+    const fn_callback2 = (response) => {
+        if (response.status === 200) {
+            navigate(`/board/detail/${id}`);
+        }
+    }
 
     return (
         <div className="board-edit-container">
@@ -83,4 +75,4 @@ function PostEdit() {
     );
 }
 
-export default PostEdit;
+export default BoardEdit;

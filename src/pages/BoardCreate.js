@@ -1,7 +1,7 @@
 import "../styles/BoardCreate.css"
 import {Link, useNavigate} from "react-router-dom";
 import {useState} from "react";
-import axios from "axios";
+import axiosRequest from "../api/Axios";
 
 function BoardCreate() {
     const navigate = useNavigate();
@@ -18,15 +18,14 @@ function BoardCreate() {
     };
 
     const onClickSubmit = () => {
-        axios.post(`${process.env.REACT_APP_API_URL}/board`, formData)
-            .then(response => {
-                console.log('게시글 등록 성공: ', response.data);
-                navigate('/board');
-            })
-            .catch(error => {
-                console.error('게시글 등록 실패: ', error);
-            });
+        axiosRequest("post", "", {data: formData}, fn_callback);
     };
+
+    const fn_callback = (response) => {
+        if (response.status === 200) {
+            navigate('/board');
+        }
+    }
 
     return (
         <div className="board-create-container">
